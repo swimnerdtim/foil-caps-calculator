@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Swimnerd Foil Racing Caps — Build Your Quote</title>
+<title>Swimnerd Foil Racing Caps — Pricing Calculator</title>
 <style>
   :root {
     --navy: #0a1628;
@@ -72,14 +72,21 @@
   .qty-btn .q-num { font-weight: 800; font-size: 20px; }
   .qty-btn .q-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
-  input[type=number], input[type=text], input[type=email], textarea {
-    width: 100%;
+  input[type=number], input[type=range] { width: 100%; }
+  input[type=number] {
     background: var(--navy-light); border: 1px solid var(--border);
     color: var(--text); border-radius: 10px; padding: 12px 14px;
     font-size: 16px; font-family: inherit;
   }
-  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
-  textarea { resize: vertical; min-height: 72px; }
+  input[type=number]:focus { outline: none; border-color: var(--accent); }
+
+  .slider-row { display: flex; align-items: center; gap: 16px; }
+  .slider-row input[type=range] { flex: 1; accent-color: var(--accent); height: 6px; }
+  .slider-val {
+    min-width: 70px; text-align: center; font-weight: 800; font-size: 20px;
+    color: var(--accent); background: var(--navy-light);
+    border-radius: 10px; padding: 8px; border: 1px solid var(--border);
+  }
 
   .names-wrap { display: flex; align-items: center; gap: 12px; }
   .names-wrap input { flex: 1; }
@@ -96,57 +103,34 @@
     background: linear-gradient(160deg, var(--navy-light), var(--card));
     border: 1px solid var(--accent);
   }
-  .price-hero { text-align: center; }
+  .price-hero { text-align: center; margin-bottom: 20px; }
   .price-hero .per-cap {
-    font-size: 56px; font-weight: 900; color: var(--accent); letter-spacing: -2px;
+    font-size: 52px; font-weight: 900; color: var(--accent); letter-spacing: -2px;
   }
   .price-hero .per-cap-label { color: var(--text-dim); font-size: 13px; text-transform: uppercase; letter-spacing: 1.5px; }
   .price-hero .total {
-    margin-top: 12px; font-size: 22px; font-weight: 700;
+    margin-top: 10px; font-size: 20px; font-weight: 700;
   }
   .price-hero .total span { color: var(--gold); }
-  .price-hero .sub {
-    margin-top: 10px; font-size: 13px; color: var(--text-dim);
-  }
-  .incl {
-    list-style: none; margin: 18px 0 0; padding: 16px 0 0;
-    border-top: 1px solid var(--border);
-    display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px;
-  }
-  .incl li { font-size: 13px; color: var(--text); }
-  .incl li::before { content: "✓ "; color: var(--accent); font-weight: 800; }
 
-  /* Quote form */
-  .btn {
-    display: block; width: 100%; padding: 16px; border-radius: 12px;
-    background: var(--accent); color: var(--navy); border: none;
-    font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 4px;
-    text-decoration: none; text-align: center; transition: background 0.15s;
-  }
-  .btn:hover { background: var(--accent-dark); }
-  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .form-grid .full { grid-column: 1 / -1; }
-  @media (max-width: 560px) {
-    .form-grid { grid-template-columns: 1fr; }
-    .incl { grid-template-columns: 1fr; }
-    .price-hero .per-cap { font-size: 46px; }
-  }
-  .success {
-    display: none; text-align: center; padding: 20px;
-    background: rgba(61,220,132,0.1); border: 1px solid var(--accent);
-    border-radius: 12px; margin-top: 14px;
-  }
-  .success h3 { color: var(--accent); margin-bottom: 6px; }
+  .breakdown { border-top: 1px solid var(--border); padding-top: 16px; }
+  .brow { display: flex; justify-content: space-between; padding: 7px 0; font-size: 14px; }
+  .brow .lbl { color: var(--text-dim); }
+  .brow .val { font-weight: 600; }
+  .brow.profit { border-top: 1px dashed var(--border); margin-top: 8px; padding-top: 14px; font-size: 16px; }
+  .brow.profit .val { color: var(--accent); font-weight: 800; }
+  .brow.margin-line .val { color: var(--gold); }
 
   footer { text-align: center; color: var(--text-dim); font-size: 12px; margin-top: 20px; }
+  .footer-note { font-size: 11px; margin-top: 6px; opacity: 0.7; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <span class="badge">🏊 Swimnerd</span>
-    <h1>Foil Racing Caps</h1>
-    <p>Premium customizable competition caps — build your quote in seconds</p>
+    <h1>Foil Racing Cap Pricing</h1>
+    <p>Fully customizable competition caps — build your quote</p>
   </header>
 
   <!-- Category -->
@@ -154,19 +138,19 @@
     <h2>1 · Choose Your Cap</h2>
     <div class="toggle-row">
       <div class="toggle-btn active" id="cat-standard" onclick="setCategory('standard')">
-        <div class="t-title">Team Design</div>
-        <div class="t-desc">Your logo & colors — up to 4 logos or colors.</div>
+        <div class="t-title">Standard</div>
+        <div class="t-desc">Up to 4 logos or colors. No individual names.</div>
       </div>
       <div class="toggle-btn" id="cat-custom" onclick="setCategory('custom')">
-        <div class="t-title">Fully Personalized</div>
-        <div class="t-desc">Team design + each swimmer's name on their cap.</div>
+        <div class="t-title">Fully Customized</div>
+        <div class="t-desc">Everything in Standard + individual swimmer names.</div>
       </div>
     </div>
   </div>
 
   <!-- Quantity -->
   <div class="card">
-    <h2>2 · How Many Caps?</h2>
+    <h2>2 · Quantity</h2>
     <div class="qty-tiers">
       <div class="qty-btn" onclick="setQty(100)"><div class="q-num">100</div><div class="q-label">caps</div></div>
       <div class="qty-btn active" onclick="setQty(300)"><div class="q-num">300</div><div class="q-label">caps</div></div>
@@ -176,10 +160,10 @@
 
   <!-- Names (custom only) -->
   <div class="card" id="names-card" style="display:none;">
-    <h2>3 · Personalized Names</h2>
+    <h2>3 · Individual Names</h2>
     <div class="field">
-      <label>How many swimmer names?
-        <span class="hint">Add each swimmer's name to their cap</span>
+      <label>How many names/logos to print?
+        <span class="hint">Setup fee: $20 per 3 names (billed per order, not per cap)</span>
       </label>
       <div class="names-wrap">
         <input type="number" id="names" value="0" min="0" step="1" oninput="calc()">
@@ -191,75 +175,60 @@
     </div>
   </div>
 
-  <!-- Results -->
-  <div class="card result">
-    <h2 style="color:var(--accent);">Your Price</h2>
-    <div class="price-hero">
-      <div class="per-cap" id="per-cap">$0.00</div>
-      <div class="per-cap-label">per cap</div>
-      <div class="total">Order total: <span id="total">$0.00</span></div>
-      <div class="sub" id="sub-note">Includes shipping · custom team design</div>
+  <!-- Margin -->
+  <div class="card">
+    <h2>4 · Your Markup <span style="text-transform:none;letter-spacing:0;color:var(--text-dim);font-weight:400;">(tune this)</span></h2>
+    <div class="field">
+      <label>Markup multiplier on landed cost
+        <span class="hint">2.5× is a common starting point for custom merch</span>
+      </label>
+      <div class="slider-row">
+        <input type="range" id="markup" min="1.5" max="4" step="0.1" value="2.5" oninput="calc()">
+        <div class="slider-val" id="markup-val">2.5×</div>
+      </div>
     </div>
-    <ul class="incl">
-      <li>Premium foil finish</li>
-      <li>Custom team colors</li>
-      <li>Up to 4 logos/colors</li>
-      <li>Shipping included</li>
-      <li id="incl-names" style="display:none;">Individual names</li>
-      <li id="incl-design">Design proof before print</li>
-    </ul>
   </div>
 
-  <!-- Quote request -->
-  <div class="card">
-    <h2>Request Your Official Quote</h2>
-    <form id="quote-form" onsubmit="return submitQuote(event)">
-      <div class="form-grid">
-        <div><input type="text" id="q-name" placeholder="Your name" required></div>
-        <div><input type="text" id="q-team" placeholder="Team / organization" required></div>
-        <div><input type="email" id="q-email" placeholder="Email" required></div>
-        <div><input type="text" id="q-phone" placeholder="Phone (optional)"></div>
-        <div class="full"><textarea id="q-notes" placeholder="Anything else? (logo details, colors, deadline, delivery date...)"></textarea></div>
-      </div>
-      <input type="hidden" id="q-summary">
-      <button type="submit" class="btn" style="margin-top:14px;">Send My Quote Request →</button>
-    </form>
-    <div class="success" id="success">
-      <h3>Quote request sent! 🎉</h3>
-      <p>We'll email your official quote within 24 hours. Check your inbox for a confirmation.</p>
+  <!-- Results -->
+  <div class="card result">
+    <h2 style="color:var(--accent);">Your Quote</h2>
+    <div class="price-hero">
+      <div class="per-cap" id="per-cap">$0.00</div>
+      <div class="per-cap-label">per cap (retail)</div>
+      <div class="total">Order total: <span id="total">$0.00</span></div>
+    </div>
+    <div class="breakdown">
+      <div class="brow"><span class="lbl">Cap cost (each)</span><span class="val" id="b-cap">$0</span></div>
+      <div class="brow"><span class="lbl">Shipping (each)</span><span class="val" id="b-ship">$0</span></div>
+      <div class="brow"><span class="lbl">Landed cost (each)</span><span class="val" id="b-landed">$0</span></div>
+      <div class="brow" id="row-setup"><span class="lbl">Name setup fee (order)</span><span class="val" id="b-setup">$0</span></div>
+      <div class="brow"><span class="lbl">Total landed cost (order)</span><span class="val" id="b-total-cost">$0</span></div>
+      <div class="brow margin-line"><span class="lbl">Gross margin</span><span class="val" id="b-margin-pct">0%</span></div>
+      <div class="brow profit"><span class="lbl">Your profit (order)</span><span class="val" id="b-profit">$0</span></div>
     </div>
   </div>
 
   <footer>
-    Swimnerd · Foil Racing Caps &nbsp;|&nbsp; Questions? nate@swimnerd.com
+    Swimnerd Foil Cap Pricing Model
+    <div class="footer-note">Costs: caps $9/$7/$6 · shipping $175/$329/$569 at 100/300/500 · names $20 per 3</div>
   </footer>
 </div>
 
 <script>
-  /* =========================================================
-     PRICING CONFIG — internal only, not shown to customers.
-     Adjust these two multipliers to change your pricing.
-     ========================================================= */
-  const MARKUP_STANDARD = 2.5;   // Team Design markup
-  const MARKUP_CUSTOM   = 3.0;   // Fully Personalized markup
-  /* ========================================================= */
-
-  // Cost data by quantity tier (internal)
+  // Cost data by quantity tier
   const TIERS = {
     100: { cap: 9, ship: 175 },
     300: { cap: 7, ship: 329 },
     500: { cap: 6, ship: 569 },
   };
-  const NAME_FEE_PER_3 = 20;
 
-  let state = { category: 'standard', qty: 300, names: 0 };
+  let state = { category: 'standard', qty: 300, names: 0, markup: 2.5 };
 
   function setCategory(c) {
     state.category = c;
     document.getElementById('cat-standard').classList.toggle('active', c === 'standard');
     document.getElementById('cat-custom').classList.toggle('active', c === 'custom');
     document.getElementById('names-card').style.display = c === 'custom' ? 'block' : 'none';
-    document.getElementById('incl-names').style.display = c === 'custom' ? 'list-item' : 'none';
     if (c === 'standard') { state.names = 0; document.getElementById('names').value = 0; }
     calc();
   }
@@ -285,57 +254,40 @@
 
   function calc() {
     state.names = parseInt(document.getElementById('names').value || 0);
+    state.markup = parseFloat(document.getElementById('markup').value);
+    document.getElementById('markup-val').textContent = state.markup.toFixed(1) + '×';
 
     const tier = TIERS[state.qty];
     const shipPer = tier.ship / state.qty;
     const landedPer = tier.cap + shipPer;
 
-    const markup = state.category === 'custom' ? MARKUP_CUSTOM : MARKUP_STANDARD;
+    // Name setup fee: $20 per 3 names, rounded up
     const setupFee = state.category === 'custom'
-      ? Math.ceil(state.names / 3) * NAME_FEE_PER_3
+      ? Math.ceil(state.names / 3) * 20
       : 0;
 
+    // Total landed cost for whole order
     const totalLandedCost = (landedPer * state.qty) + setupFee;
-    const orderRetail = totalLandedCost * markup;
+
+    // Retail: apply markup to landed cost. Setup fee passed through into total order price with same markup.
+    const orderRetail = totalLandedCost * state.markup;
     const perCapRetail = orderRetail / state.qty;
 
+    const profit = orderRetail - totalLandedCost;
+    const marginPct = orderRetail > 0 ? (profit / orderRetail) * 100 : 0;
+
+    // Render
     document.getElementById('per-cap').textContent = money(perCapRetail);
     document.getElementById('total').textContent = money(orderRetail);
+    document.getElementById('b-cap').textContent = money(tier.cap);
+    document.getElementById('b-ship').textContent = money(shipPer);
+    document.getElementById('b-landed').textContent = money(landedPer);
+    document.getElementById('b-setup').textContent = money(setupFee);
+    document.getElementById('b-total-cost').textContent = money(totalLandedCost);
+    document.getElementById('b-margin-pct').textContent = marginPct.toFixed(0) + '%';
+    document.getElementById('b-profit').textContent = money(profit);
 
-    const noteBits = ['Includes shipping'];
-    noteBits.push(state.category === 'custom' ? 'personalized names' : 'custom team design');
-    document.getElementById('sub-note').textContent = noteBits.join(' · ');
-
-    // Build hidden summary for the quote email
-    const label = state.category === 'custom' ? 'Fully Personalized' : 'Team Design';
-    document.getElementById('q-summary').value =
-      `${label} | ${state.qty} caps` +
-      (state.category === 'custom' ? ` | ${state.names} names` : '') +
-      ` | ${money(perCapRetail)}/cap | Total ${money(orderRetail)}`;
-  }
-
-  function submitQuote(e) {
-    e.preventDefault();
-    // For now: opens a pre-filled email to you. Swap for a form backend later.
-    const name = document.getElementById('q-name').value;
-    const team = document.getElementById('q-team').value;
-    const email = document.getElementById('q-email').value;
-    const phone = document.getElementById('q-phone').value;
-    const notes = document.getElementById('q-notes').value;
-    const summary = document.getElementById('q-summary').value;
-
-    const body = encodeURIComponent(
-      `New Foil Cap Quote Request\n\n` +
-      `Name: ${name}\nTeam: ${team}\nEmail: ${email}\nPhone: ${phone}\n\n` +
-      `--- Order ---\n${summary}\n\n` +
-      `Notes: ${notes}\n`
-    );
-    const subject = encodeURIComponent(`Foil Cap Quote — ${team}`);
-    window.location.href = `mailto:nate@swimnerd.com?subject=${subject}&body=${body}`;
-
-    document.getElementById('quote-form').style.display = 'none';
-    document.getElementById('success').style.display = 'block';
-    return false;
+    document.getElementById('row-setup').style.display = state.category === 'custom' ? 'flex' : 'none';
   }
 
   calc();
