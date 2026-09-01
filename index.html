@@ -199,6 +199,7 @@
       <div class="per-cap-label">per cap</div>
       <div class="total">Order total: <span id="total">$0.00</span></div>
       <div class="sub" id="sub-note">Includes shipping · custom team design</div>
+      <div class="sub" style="margin-top:6px;color:var(--accent);font-weight:600;">This is your price — ready when you are.</div>
     </div>
     <ul class="incl">
       <li>Premium foil finish</li>
@@ -210,9 +211,10 @@
     </ul>
   </div>
 
-  <!-- Quote request -->
+  <!-- Ready to buy -->
   <div class="card">
-    <h2>Request Your Official Quote</h2>
+    <h2>Ready to Order?</h2>
+    <p style="font-size:14px;color:var(--text-dim);margin-bottom:16px;">Lock in the price above. Send us your details and we'll get your order started &amp; confirm everything by email.</p>
     <form id="quote-form" onsubmit="return submitQuote(event)">
       <div class="form-grid">
         <div><input type="text" id="q-name" placeholder="Your name" required></div>
@@ -222,11 +224,11 @@
         <div class="full"><textarea id="q-notes" placeholder="Anything else? (logo details, colors, deadline, delivery date...)"></textarea></div>
       </div>
       <input type="hidden" id="q-summary">
-      <button type="submit" class="btn" style="margin-top:14px;">Send My Quote Request →</button>
+      <button type="submit" class="btn" style="margin-top:14px;">I'm Ready to Buy →</button>
     </form>
     <div class="success" id="success">
-      <h3>Quote request sent! 🎉</h3>
-      <p>We'll email your official quote within 24 hours. Check your inbox for a confirmation.</p>
+      <h3>Order request sent! 🎉</h3>
+      <p>We got your order. We'll email you within 24 hours to confirm details, collect payment, and lock in your production timeline.</p>
     </div>
   </div>
 
@@ -325,12 +327,13 @@
     const summary = document.getElementById('q-summary').value;
 
     const body = encodeURIComponent(
-      `New Foil Cap Quote Request\n\n` +
+      `NEW FOIL CAP ORDER — ready to buy\n\n` +
       `Name: ${name}\nTeam: ${team}\nEmail: ${email}\nPhone: ${phone}\n\n` +
       `--- Order ---\n${summary}\n\n` +
-      `Notes: ${notes}\n`
+      `Notes: ${notes}\n\n` +
+      `>> Create this order in Shopify and email customer to confirm + collect payment.\n`
     );
-    const subject = encodeURIComponent(`Foil Cap Quote — ${team}`);
+    const subject = encodeURIComponent(`🛒 Foil Cap ORDER — ${team}`);
     window.location.href = `mailto:nate@swimnerd.com?subject=${subject}&body=${body}`;
 
     document.getElementById('quote-form').style.display = 'none';
