@@ -385,27 +385,37 @@
       ` | ${money(perCapRetail)}/cap | Total ${money(orderRetail)}`;
   }
 
-  function submitQuote(e) {
+  const ORDER_ENDPOINT = 'https://swimnerd-orders.onrender.com/api/cap-order';
+
+  async function submitQuote(e) {
     e.preventDefault();
-    const name = document.getElementById('q-name').value;
-    const team = document.getElementById('q-team').value;
-    const email = document.getElementById('q-email').value;
-    const phone = document.getElementById('q-phone').value;
-    const notes = document.getElementById('q-notes').value;
-    const summary = document.getElementById('q-summary').value;
+    const btn = document.querySelector('#quote-form .btn');
+    const payload = {
+      name: document.getElementById('q-name').value,
+      team: document.getElementById('q-team').value,
+      email: document.getElementById('q-email').value,
+      phone: document.getElementById('q-phone').value,
+      notes: document.getElementById('q-notes').value,
+      summary: document.getElementById('q-summary').value,
+    };
 
-    const body = encodeURIComponent(
-      `NEW FOIL CAP ORDER - ready to buy\n\n` +
-      `Name: ${name}\nTeam: ${team}\nEmail: ${email}\nPhone: ${phone}\n\n` +
-      `--- Order ---\n${summary}\n\n` +
-      `Notes: ${notes}\n\n` +
-      `>> Create this order in Shopify and email customer to confirm + collect payment.\n`
-    );
-    const subject = encodeURIComponent(`Foil Cap ORDER - ${team}`);
-    window.location.href = `mailto:nate@swimnerd.com?subject=${subject}&body=${body}`;
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
-    document.getElementById('quote-form').style.display = 'none';
-    document.getElementById('success').style.display = 'block';
+    try {
+      const res = await fetch(ORDER_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'submit failed');
+
+      document.getElementById('quote-form').style.display = 'none';
+      document.getElementById('success').style.display = 'block';
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = "I'm Ready to Buy"; }
+      alert("Sorry, something went wrong sending your order. Please try again, or email nate@swimnerd.com.");
+    }
     return false;
   }
 
