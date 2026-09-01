@@ -244,8 +244,8 @@
         <div><input type="text" id="q-team" placeholder="Team / organization" required></div>
         <div><input type="email" id="q-email" placeholder="Email" required></div>
         <div><input type="text" id="q-phone" placeholder="Phone (optional)"></div>
-        <div class="full"><textarea id="q-notes" placeholder="Anything else? Logo details, colors, deadline, delivery date..."></textarea></div>
       </div>
+      <p style="font-size:13px;color:var(--text-dim);margin-top:12px;">Once you submit, we'll email you right away to collect your logo, colors, and any details, then confirm your order.</p>
       <input type="hidden" id="q-summary">
       <button type="submit" class="btn" style="margin-top:16px;">I'm Ready to Buy</button>
     </form>
@@ -395,7 +395,6 @@
       team: document.getElementById('q-team').value,
       email: document.getElementById('q-email').value,
       phone: document.getElementById('q-phone').value,
-      notes: document.getElementById('q-notes').value,
       summary: document.getElementById('q-summary').value,
     };
 
