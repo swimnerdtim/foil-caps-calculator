@@ -219,7 +219,7 @@
     <div class="toggle-row">
       <div class="toggle-btn active" id="cat-standard" onclick="setCategory('standard')">
         <div class="t-title">Team Design</div>
-        <div class="t-desc">Your logo and colors — up to 4 logos or colors.</div>
+        <div class="t-desc">Your logos and colors — as many as you want.</div>
       </div>
       <div class="toggle-btn" id="cat-custom" onclick="setCategory('custom')">
         <div class="t-title">Fully Personalized</div>
@@ -230,7 +230,7 @@
 
   <!-- Colors -->
   <div class="card">
-    <h2><span class="step-num">3</span> &nbsp;Choose Your Cap Colors <span style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text-dim);">(up to 4)</span></h2>
+    <h2><span class="step-num">3</span> &nbsp;Choose Your Cap Colors <span style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text-dim);">(pick as many as you like)</span></h2>
     <div class="swatch-grid" id="common-swatches"></div>
     <div class="color-search-wrap">
       <input type="text" id="color-search" placeholder="Search all Pantone colors (name or number, e.g. 286 or Reflex Blue)" autocomplete="off" oninput="searchColors(this.value)" onfocus="searchColors(this.value)">
@@ -280,7 +280,7 @@
     <ul class="incl">
       <li>Premium foil finish</li>
       <li>Custom team colors</li>
-      <li>Up to 4 logos or colors</li>
+      <li>Unlimited logos &amp; colors</li>
       <li>Shipping included</li>
       <li id="incl-names" style="display:none;">Individual swimmer names</li>
       <li id="incl-design">Design proof before print</li>
@@ -323,7 +323,7 @@
 
     <h3 class="seo-h3">Why Teams Choose Swimnerd Custom Racing Caps</h3>
     <ul class="seo-list">
-      <li><strong>Fully customizable:</strong> Add up to 4 logos or colors, plus individual swimmer names on every cap.</li>
+      <li><strong>Fully customizable:</strong> Add as many logos and colors as you want, plus individual swimmer names on every cap.</li>
       <li><strong>Premium silicone:</strong> Durable, comfortable, and built for competitive swimming and daily training alike.</li>
       <li><strong>Team-friendly pricing:</strong> Volume pricing at 100, 300, and 500 caps — the more you order, the lower the per-cap price.</li>
       <li><strong>Shipping included:</strong> No surprise fees. The price you see includes shipping.</li>
@@ -340,7 +340,7 @@
       <p class="faq-q">Are these good competition swim caps?</p>
       <p class="faq-a">Yes. Both our dome and spiral finishes are premium silicone racing caps designed for competition, offering a streamlined, hydrodynamic fit for meets and time trials.</p>
       <p class="faq-q">Can I put my team logo and swimmer names on the caps?</p>
-      <p class="faq-a">Absolutely. Choose Team Design for your logo and colors (up to 4), or Fully Personalized to add each swimmer's name to their own cap.</p>
+      <p class="faq-a">Absolutely. Choose Team Design for your logos and colors (as many as you want), or Fully Personalized to add each swimmer's name to their own cap.</p>
       <p class="faq-q">How many custom swim caps do I have to order?</p>
       <p class="faq-a">We offer team pricing at 100, 300, and 500 caps. Larger orders bring the per-cap price down.</p>
       <p class="faq-q">How much do custom team swim caps cost?</p>
@@ -372,7 +372,7 @@ const PANTONE=[["PANTONE yellow C","#F5DE00"],["PANTONE yellow 012C","#F6D400"],
     'PANTONE Purple C', 'PANTONE 268C', 'PANTONE 2685C',
     'PANTONE 877C', 'PANTONE 871C', 'PANTONE 429C', 'PANTONE 877C'
   ];
-  const MAX_COLORS = 4;
+
 
   // Build a fast lookup + a white fallback (Pantone chart has no pure white).
   const COLOR_MAP = {};
@@ -410,13 +410,7 @@ const PANTONE=[["PANTONE yellow C","#F5DE00"],["PANTONE yellow 012C","#F6D400"],
     if (!c) return;
     const i = state.colors.indexOf(c.name);
     if (i >= 0) { state.colors.splice(i, 1); }
-    else {
-      if (state.colors.length >= MAX_COLORS) {
-        alert('You can choose up to ' + MAX_COLORS + ' colors. Remove one to add another.');
-        return;
-      }
-      state.colors.push(c.name);
-    }
+    else { state.colors.push(c.name); }
     renderSelected();
     refreshSwatchState();
     calc();
