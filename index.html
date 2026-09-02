@@ -58,6 +58,38 @@
   .toggle-btn .t-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; color: var(--navy); }
   .toggle-btn .t-desc { font-size: 12.5px; color: var(--text-dim); }
 
+  /* Color picker */
+  .swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 10px; }
+  .swatch {
+    cursor: pointer; border: 2px solid var(--border); border-radius: 10px;
+    padding: 6px; background: var(--bg); text-align: center; transition: all 0.15s;
+  }
+  .swatch:hover { border-color: var(--border-strong); }
+  .swatch.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(31,157,87,0.14); }
+  .swatch .chip { width: 100%; height: 40px; border-radius: 7px; border: 1px solid rgba(0,0,0,0.08); }
+  .swatch .s-name { font-size: 10.5px; color: var(--text-dim); margin-top: 5px; line-height: 1.25; font-weight: 600; }
+  .color-search-wrap { position: relative; margin-top: 16px; }
+  .color-results {
+    position: absolute; z-index: 20; left: 0; right: 0; top: 100%;
+    background: var(--bg); border: 1px solid var(--border-strong); border-top: none;
+    border-radius: 0 0 10px 10px; max-height: 280px; overflow-y: auto; display: none;
+    box-shadow: 0 8px 24px rgba(10,37,64,0.10);
+  }
+  .color-results.open { display: block; }
+  .cr-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; cursor: pointer; }
+  .cr-item:hover { background: var(--panel); }
+  .cr-item .cr-chip { width: 26px; height: 26px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
+  .cr-item .cr-name { font-size: 13.5px; color: var(--text); }
+  .selected-colors { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .sel-pill {
+    display: inline-flex; align-items: center; gap: 8px; background: var(--panel);
+    border: 1px solid var(--border-strong); border-radius: 20px; padding: 5px 10px 5px 6px; font-size: 13px; color: var(--navy); font-weight: 600;
+  }
+  .sel-pill .p-chip { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.12); }
+  .sel-pill .p-x { cursor: pointer; color: var(--text-dim); font-weight: 800; margin-left: 2px; }
+  .sel-pill .p-x:hover { color: #c0392b; }
+  .color-note { font-size: 12px; color: var(--text-dim); margin-top: 10px; }
+
   .field { margin-bottom: 18px; }
   .field:last-child { margin-bottom: 0; }
   .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
@@ -187,9 +219,21 @@
     </div>
   </div>
 
+  <!-- Colors -->
+  <div class="card">
+    <h2><span class="step-num">3</span> &nbsp;Choose Your Cap Colors <span style="text-transform:none;letter-spacing:0;font-weight:600;color:var(--text-dim);">(up to 4)</span></h2>
+    <div class="swatch-grid" id="common-swatches"></div>
+    <div class="color-search-wrap">
+      <input type="text" id="color-search" placeholder="Search all Pantone colors (name or number, e.g. 286 or Reflex Blue)" autocomplete="off" oninput="searchColors(this.value)" onfocus="searchColors(this.value)">
+      <div class="color-results" id="color-results"></div>
+    </div>
+    <div class="selected-colors" id="selected-colors"></div>
+    <p class="color-note">Pick your team's Pantone colors. Not sure of the exact code? Choose the closest — we'll confirm the exact match on your design proof before printing.</p>
+  </div>
+
   <!-- Quantity -->
   <div class="card">
-    <h2><span class="step-num">3</span> &nbsp;How Many Caps?</h2>
+    <h2><span class="step-num">4</span> &nbsp;How Many Caps?</h2>
     <div class="qty-tiers">
       <div class="qty-btn" onclick="setQty(100)"><div class="q-num">100</div><div class="q-label">caps</div></div>
       <div class="qty-btn active" onclick="setQty(300)"><div class="q-num">300</div><div class="q-label">caps</div></div>
@@ -199,7 +243,7 @@
 
   <!-- Names (custom only) -->
   <div class="card" id="names-card" style="display:none;">
-    <h2><span class="step-num">4</span> &nbsp;Personalized Names</h2>
+    <h2><span class="step-num">5</span> &nbsp;Personalized Names</h2>
     <div class="field">
       <label>How many swimmer names?
         <span class="hint">Add each swimmer's name to their cap</span>
@@ -300,7 +344,116 @@
   </footer>
 </div>
 
+<script src="pantone.js"></script>
 <script>
+  /* =========================================================
+     COLOR PICKER
+     ========================================================= */
+  // Curated common team colors shown as quick-pick swatches.
+  // Names must match entries in PANTONE (pantone.js) so search + swatches stay consistent.
+  const COMMON_COLORS = [
+    'PANTONE Black C', 'PANTONE White',
+    'PANTONE Reflex Blue C', 'PANTONE 286C', 'PANTONE 300C', 'PANTONE 289C',
+    'PANTONE Blue 072C', 'PANTONE 285C', 'PANTONE Process Blue C',
+    'PANTONE red 032C', 'PANTONE 186C', 'PANTONE 200C', 'PANTONE 199C',
+    'PANTONE 348C', 'PANTONE 355C', 'PANTONE 349C',
+    'PANTONE orange 021C', 'PANTONE 137C', 'PANTONE yellow C', 'PANTONE 116C',
+    'PANTONE Purple C', 'PANTONE 268C', 'PANTONE 2685C',
+    'PANTONE 877C', 'PANTONE 871C', 'PANTONE 429C', 'PANTONE 877C'
+  ];
+  const MAX_COLORS = 4;
+
+  // Build a fast lookup + a white fallback (Pantone chart has no pure white).
+  const COLOR_MAP = {};
+  PANTONE.forEach(([name, hex]) => { COLOR_MAP[name.toLowerCase()] = { name, hex }; });
+  if (!COLOR_MAP['pantone white']) { COLOR_MAP['pantone white'] = { name: 'PANTONE White', hex: '#FFFFFF' }; }
+
+  function findColor(name) { return COLOR_MAP[String(name).toLowerCase()] || null; }
+
+  function renderCommonSwatches() {
+    const seen = new Set();
+    const grid = document.getElementById('common-swatches');
+    grid.innerHTML = '';
+    COMMON_COLORS.forEach(nm => {
+      const c = findColor(nm);
+      if (!c || seen.has(c.name)) return;
+      seen.add(c.name);
+      const el = document.createElement('div');
+      el.className = 'swatch';
+      el.dataset.name = c.name;
+      el.onclick = () => toggleColor(c.name);
+      el.innerHTML = `<div class="chip" style="background:${c.hex}"></div><div class="s-name">${c.name.replace('PANTONE ','')}</div>`;
+      grid.appendChild(el);
+    });
+    refreshSwatchState();
+  }
+
+  function refreshSwatchState() {
+    document.querySelectorAll('#common-swatches .swatch').forEach(el => {
+      el.classList.toggle('active', state.colors.includes(el.dataset.name));
+    });
+  }
+
+  function toggleColor(name) {
+    const c = findColor(name);
+    if (!c) return;
+    const i = state.colors.indexOf(c.name);
+    if (i >= 0) { state.colors.splice(i, 1); }
+    else {
+      if (state.colors.length >= MAX_COLORS) {
+        alert('You can choose up to ' + MAX_COLORS + ' colors. Remove one to add another.');
+        return;
+      }
+      state.colors.push(c.name);
+    }
+    renderSelected();
+    refreshSwatchState();
+    calc();
+  }
+
+  function renderSelected() {
+    const wrap = document.getElementById('selected-colors');
+    wrap.innerHTML = '';
+    state.colors.forEach(nm => {
+      const c = findColor(nm) || { name: nm, hex: '#ccc' };
+      const pill = document.createElement('span');
+      pill.className = 'sel-pill';
+      pill.innerHTML = `<span class="p-chip" style="background:${c.hex}"></span>${c.name.replace('PANTONE ','')}<span class="p-x" title="Remove">\u00d7</span>`;
+      pill.querySelector('.p-x').onclick = () => toggleColor(c.name);
+      wrap.appendChild(pill);
+    });
+  }
+
+  function searchColors(q) {
+    const box = document.getElementById('color-results');
+    q = (q || '').trim().toLowerCase();
+    if (!q) { box.classList.remove('open'); box.innerHTML = ''; return; }
+    const matches = [];
+    for (let i = 0; i < PANTONE.length && matches.length < 40; i++) {
+      const [name, hex] = PANTONE[i];
+      if (name.toLowerCase().includes(q)) matches.push([name, hex]);
+    }
+    if (!matches.length) { box.innerHTML = '<div class="cr-item" style="color:var(--text-dim);cursor:default;">No matches</div>'; box.classList.add('open'); return; }
+    box.innerHTML = matches.map(([name, hex]) =>
+      `<div class="cr-item" data-name="${name.replace(/"/g,'')}"><span class="cr-chip" style="background:${hex}"></span><span class="cr-name">${name}</span></div>`
+    ).join('');
+    box.querySelectorAll('.cr-item[data-name]').forEach(el => {
+      el.onclick = () => {
+        toggleColor(el.dataset.name);
+        document.getElementById('color-search').value = '';
+        box.classList.remove('open'); box.innerHTML = '';
+      };
+    });
+    box.classList.add('open');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.color-search-wrap')) {
+      const box = document.getElementById('color-results');
+      if (box) { box.classList.remove('open'); }
+    }
+  });
+
   /* =========================================================
      PRICING CONFIG — internal only, not shown to customers.
      Adjust these two multipliers to change your pricing.
@@ -316,7 +469,7 @@
   };
   const NAME_FEE_PER_3 = 20;
 
-  let state = { finish: 'dome', category: 'standard', qty: 300, names: 0 };
+  let state = { finish: 'dome', category: 'standard', qty: 300, names: 0, colors: [] };
 
   function setFinish(f) {
     state.finish = f;
@@ -379,9 +532,11 @@
 
     const label = state.category === 'custom' ? 'Fully Personalized' : 'Team Design';
     const finishLabel = state.finish === 'spiral' ? 'Spiral' : 'Dome';
+    const colorLabel = state.colors.length ? state.colors.join(', ') : 'TBD';
     document.getElementById('q-summary').value =
       `${finishLabel} | ${label} | ${state.qty} caps` +
       (state.category === 'custom' ? ` | ${state.names} names` : '') +
+      ` | Colors: ${colorLabel}` +
       ` | ${money(perCapRetail)}/cap | Total ${money(orderRetail)}`;
   }
 
@@ -418,6 +573,8 @@
     return false;
   }
 
+  renderCommonSwatches();
+  renderSelected();
   calc();
 </script>
 </body>
